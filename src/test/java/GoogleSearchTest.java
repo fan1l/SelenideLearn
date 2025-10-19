@@ -21,7 +21,7 @@ public class GoogleSearchTest {
     public static void setUp() {
         System.setProperty("selenide.holdBrowserOpen", "true");
         Configuration.browser = "chrome";
-        Configuration.timeout = 60000;
+        Configuration.timeout = 15000;
         Configuration.browserSize = "1920x1080";
 //        Configuration.headless = true; // запуск без GUI
     }
@@ -63,7 +63,7 @@ public class GoogleSearchTest {
         // Выбираем подкатегорию "Футболки и майки"
         SelenideElement menuLinkMansShirts = $(By.xpath("//nav[@class='rubrics-catalog']//a[contains(text(), 'Футболки и майки')]"));
         menuLinkMansShirts.shouldBe(visible).click();
-        // Открываем карточку товара с номером 2000199369207
+        // Открываем карточку товара с артикулом 206488989
         SelenideElement productLinkShirt = $("a[href$='V206488989']");
         productLinkShirt.shouldBe(visible).click();
         // Выбираем размер
@@ -135,7 +135,7 @@ public class GoogleSearchTest {
         $(By.xpath("//label[@data-aspect-name='3 Pack (White)']")).shouldBe(visible).click();
         $(By.xpath("//label[@data-aspect-name='M']")).shouldBe(visible).click();
         $(By.xpath("//span[text()='Добавить в корзину']/parent::button")).shouldBe(visible).click();
-        $(By.xpath("//input[@data-selector='quantity-group-input']")).shouldBe(exist).setValue("4");
+        $(By.xpath("//input[@name='basket_add[quantity]']")).shouldBe(exist).setValue("4");
         $(By.xpath("//div[@class='notifications__item-area-content']")).should(appear).should(disappear);
         // Получаем параметры товара (наименование, цвет, размер, цену)
         String socksNameInCard = $(By.xpath("//h1[@id='name']")).shouldBe(visible).text()
