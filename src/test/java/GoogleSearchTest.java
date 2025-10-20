@@ -1,4 +1,3 @@
-import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
@@ -6,23 +5,26 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
+import pages.BasketPage;
+import pages.ProductPage;
 
-import java.time.Duration;
-
-import static com.codeborne.selenide.Selectors.by;
-import static com.codeborne.selenide.Selectors.byCssSelector;
 import static com.codeborne.selenide.Selenide.*;
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.CollectionCondition.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class GoogleSearchTest {
+    private static ProductPage productPage;
+    private static BasketPage basketPage;
+
     @BeforeAll
     public static void setUp() {
         System.setProperty("selenide.holdBrowserOpen", "true");
         Configuration.browser = "chrome";
         Configuration.timeout = 15000;
         Configuration.browserSize = "1920x1080";
+        productPage = new ProductPage();
+        basketPage = new BasketPage();
 //        Configuration.headless = true; // запуск без GUI
     }
 
@@ -70,21 +72,19 @@ public class GoogleSearchTest {
         SelenideElement productShirtSize = $(By.xpath("//label[@data-aspect-name='M']"));
         productShirtSize.shouldBe(visible).click();
         // Добавляем в корзину
-        SelenideElement basketButton = $(By.xpath("//span[text()='Добавить в корзину']/parent::button"));
-        basketButton.shouldBe(visible).click();
+        productPage.putToBasket();
         // Ждём появления и исчезновения уведомления о добавлении товара в корзину
         SelenideElement basketNotification = $(By.xpath("//div[@class='notifications__item-area-content']"));
         basketNotification.should(appear);
         basketNotification.should(disappear);
         // Получаем параметры товара (наименование, цвет, размер, цену)
-        String shirtNameInCard = $(By.xpath("//h1[@id='name']")).shouldBe(visible).text()
-                .replaceAll("\\s*(Цвет:|Размер:).*", "").trim();
-        String shirtSizeInCard = $(By.xpath("//span[text()='Размер:']/following-sibling::span")).shouldBe(visible).text();
-        String shirtColorInCard = $(By.xpath("//span[text()='Цвет']/parent::dt/following-sibling::dd")).text();
-        double shirtPriceInCard = Double.parseDouble($(By.xpath("//div[@class='price__regular']")).text()
-                .replaceAll("[^\\d,]", "").replace(",", "."));
-        String shirtArticleInCard = $(By.xpath("//dd[@data-select='product-article']")).text();
-        int shirtCountInCard = Integer.parseInt($(By.xpath("//div[@class='quantity-group__number']")).text());
+        String shirtNameInCard = productPage.getProductName();
+        String shirtSizeInCard = productPage.getProductSize();;
+        String shirtColorInCard = productPage.getProductColor();
+        double shirtPriceInCard = productPage.getProductPrice();
+        String shirtArticleInCard = productPage.getProductArticle();
+        int shirtCountInCard = productPage.getProductCount();
+
         System.out.println(String.format("\nНаименование: %s\nЦвет: %s\nРазмер: %s\nЦена: %s\nАртикул: %s\nКоличество: %s", shirtNameInCard, shirtColorInCard,
                 shirtSizeInCard, shirtPriceInCard, shirtArticleInCard, shirtCountInCard));
 
@@ -109,19 +109,18 @@ public class GoogleSearchTest {
         productJeansSize.shouldBe(visible).click();
         // Добавляем в корзину
         //SelenideElement basketButton = $(By.xpath("//span[text()='Добавить в корзину']/parent::button"));
-        basketButton.shouldBe(visible).click();
+        productPage.putToBasket();
         //SelenideElement basketNotification = $(By.xpath("//div[@class='notifications__item-area-content']"));
         basketNotification.should(appear);
         basketNotification.should(disappear);
         // Получаем параметры товара (наименование, цвет, размер, цену)
-        String jeansNameInCard = $(By.xpath("//h1[@id='name']")).shouldBe(visible).text()
-                .replaceAll("\\s*(Цвет:|Размер:).*", "").trim();
-        String jeansSizeInCard = $(By.xpath("//span[text()='Размер:']/following-sibling::span")).shouldBe(visible).text();
-        String jeansColorInCard = $(By.xpath("//span[text()='Цвет']/parent::dt/following-sibling::dd")).shouldBe(visible).text();
-        double jeansPriceInCard = Double.parseDouble($(By.xpath("//div[@class='price__regular']")).shouldBe(visible).text()
-                .replaceAll("[^\\d,]", "").replace(",", "."));
-        String jeansArticleInCard = $(By.xpath("//dd[@data-select='product-article']")).text();
-        int jeansCountInCard = Integer.parseInt($(By.xpath("//div[@class='quantity-group__number']")).text());
+        String jeansNameInCard = productPage.getProductName();
+        String jeansSizeInCard = productPage.getProductSize();
+        String jeansColorInCard = productPage.getProductColor();
+        double jeansPriceInCard = productPage.getProductPrice();
+        String jeansArticleInCard = productPage.getProductArticle();
+        int jeansCountInCard = productPage.getProductCount();
+
         System.out.println(String.format("\nНаименование: %s\nЦвет: %s\nРазмер: %s\nЦена: %s\nАртикул: %s\nКоличество: %s", jeansNameInCard, jeansColorInCard,
                 jeansSizeInCard, jeansPriceInCard, jeansArticleInCard, jeansCountInCard));
 
@@ -131,39 +130,35 @@ public class GoogleSearchTest {
         // Выбираем категорию "Мужчинам"
         $(By.xpath("//nav[@class='mega-burger__sidebar']//a[@title='Мужчинам']")).shouldBe(visible).hover();
         $(By.xpath("//a[@title='Пижамы']/parent::li/preceding-sibling::li/a[@title='Носки']")).shouldBe(visible).click();
-        $("a[href$='V209398684']").shouldBe(visible).click();
-        $(By.xpath("//label[@data-aspect-name='3 Pack (White)']")).shouldBe(visible).click();
+        $("a[href$='V209398695']").shouldBe(visible).click();
+        $(By.xpath("//label[@data-aspect-name='3 Pack (Gray)']")).shouldBe(visible).click();
         $(By.xpath("//label[@data-aspect-name='M']")).shouldBe(visible).click();
-        $(By.xpath("//span[text()='Добавить в корзину']/parent::button")).shouldBe(visible).click();
-        $(By.xpath("//input[@name='basket_add[quantity]']")).shouldBe(exist).setValue("4");
+        productPage.putToBasket();
+        $(By.xpath("//input[@name='basket_add[quantity]']")).shouldBe(enabled).setValue("4");
         $(By.xpath("//div[@class='notifications__item-area-content']")).should(appear).should(disappear);
         // Получаем параметры товара (наименование, цвет, размер, цену)
-        String socksNameInCard = $(By.xpath("//h1[@id='name']")).shouldBe(visible).text()
-                .replaceAll("\\s*(Цвет:|Размер:).*", "").trim();
-        String socksSizeInCard = $(By.xpath("//span[text()='Размер:']/following-sibling::span")).shouldBe(visible).text();
-        String socksColorInCard = $(By.xpath("//span[text()='Цвет:']/following-sibling::span")).shouldBe(visible).text();
-        double socksPriceInCard = Double.parseDouble($(By.xpath("//div[@class='price__regular']")).shouldBe(visible).text()
-                .replaceAll("[^\\d,]", "").replace(",", "."));
-        String socksArticleInCard = $(By.xpath("//dd[@data-select='product-article']")).text();
-        int socksCountInCard = Integer.parseInt($(By.xpath("//div[@class='quantity-group__number']")).text());
+        String socksNameInCard = productPage.getProductName();
+        String socksSizeInCard = productPage.getProductSize();
+        String socksColorInCard = productPage.getProductColor();
+        double socksPriceInCard = productPage.getProductPrice();
+        String socksArticleInCard = productPage.getProductArticle();
+        int socksCountInCard = productPage.getProductCount();
+
         System.out.println(String.format("\nНаименование: %s\nЦвет: %s\nРазмер: %s\nЦена: %s\nАртикул: %s\nКоличество: %s", socksNameInCard, socksColorInCard,
                 socksSizeInCard, socksPriceInCard, socksArticleInCard, socksCountInCard));
 
 
         // Выполняем проверки в Корзине
-        $(By.xpath("//a[@data-selector='basket-desktop']")).shouldBe(visible).click();
+        productPage.goToBasket();
 
         // Проверяем товар 1 (футболка)
-        SelenideElement shirtInBasket = $(By.xpath(String.format("(//a[contains(@href, '#V%s')])[1]", shirtArticleInCard)));
-        String shirtNameInBasket = shirtInBasket.shouldBe(visible).find(By.xpath("./following-sibling::div/a")).text();
-        String shirtSizeInBasket = shirtInBasket.shouldBe(visible).find(By.xpath("./following-sibling::div/ul/li[1]"))
-                .text().replaceAll("Размер:\\s*", "").trim();
-        String shirtColorInBasket = shirtInBasket.shouldBe(visible).find(By.xpath("./following-sibling::div/ul/li[2]"))
-                .text().replaceAll("Цвет:\\s*", "").trim();
-        double shirtPriceInBasket = Double.parseDouble(shirtInBasket.shouldBe(visible).find(By.xpath("./following-sibling::div[2]/div"))
-                .text().replaceAll("[^\\d,]", "").replace(",", "."));
-        int shirtCountInBasket = Integer.parseInt(shirtInBasket.shouldBe(visible)
-                .find(By.xpath("./following-sibling::div[4]//div[@class='quantity-group__number']")).text());
+ //       SelenideElement shirtInBasket = $(By.xpath(String.format("(//a[contains(@href, '#V%s')])[1]", shirtArticleInCard)));
+        String shirtNameInBasket = basketPage.getProductName(shirtArticleInCard);
+        String shirtSizeInBasket = basketPage.getProductSize(shirtArticleInCard);
+        String shirtColorInBasket = basketPage.getProductColor(shirtArticleInCard);
+        double shirtPriceInBasket = basketPage.getProductPrice(shirtArticleInCard);
+        int shirtCountInBasket = basketPage.getProductCount(shirtArticleInCard);
+
         System.out.println("\nВ корзине:\n" + shirtNameInBasket + "\n" + shirtSizeInBasket + "\n" + shirtColorInBasket +
                 "\n" + shirtPriceInBasket + "\n" + shirtCountInBasket);
 
@@ -174,16 +169,13 @@ public class GoogleSearchTest {
         assertEquals(shirtCountInCard, shirtCountInBasket);
 
         // Проверяем товар 2 (джинсы)
-        SelenideElement jeansInBasket = $(By.xpath(String.format("(//a[contains(@href, '#V%s')])[1]", jeansArticleInCard)));
-        String jeansNameInBasket = jeansInBasket.shouldBe(visible).find(By.xpath("./following-sibling::div/a")).text();
-        String jeansSizeInBasket = jeansInBasket.shouldBe(visible).find(By.xpath("./following-sibling::div/ul/li[1]"))
-                .text().replaceAll("Размер:\\s*", "").trim();
-        String jeansColorInBasket = jeansInBasket.shouldBe(visible).find(By.xpath("./following-sibling::div/ul/li[2]"))
-                .text().replaceAll("Цвет:\\s*", "").trim();
-        double jeansPriceInBasket = Double.parseDouble(jeansInBasket.shouldBe(visible).find(By.xpath("./following-sibling::div[2]/div"))
-                .text().replaceAll("[^\\d,]", "").replace(",", "."));
-        int jeansCountInBasket = Integer.parseInt(jeansInBasket.shouldBe(visible)
-                .find(By.xpath("./following-sibling::div[4]//div[@class='quantity-group__number']")).text());
+//        SelenideElement jeansInBasket = $(By.xpath(String.format("(//a[contains(@href, '#V%s')])[1]", jeansArticleInCard)));
+        String jeansNameInBasket = basketPage.getProductName(jeansArticleInCard);
+        String jeansSizeInBasket = basketPage.getProductSize(jeansArticleInCard);
+        String jeansColorInBasket = basketPage.getProductColor(jeansArticleInCard);
+        double jeansPriceInBasket = basketPage.getProductPrice(jeansArticleInCard);
+        int jeansCountInBasket = basketPage.getProductCount(jeansArticleInCard);
+
         System.out.println("\nВ корзине:\n" + jeansNameInBasket + "\n" + jeansSizeInBasket + "\n" + jeansColorInBasket +
                 "\n" + jeansPriceInBasket + "\n" + jeansCountInBasket);
 
@@ -194,16 +186,13 @@ public class GoogleSearchTest {
         assertEquals(jeansCountInCard, jeansCountInBasket);
 
         // Проверяем товар 3 (носки)
-        SelenideElement socksInBasket = $(By.xpath(String.format("(//a[contains(@href, '#V%s')])[1]", socksArticleInCard)));
-        String socksNameInBasket = socksInBasket.shouldBe(visible).find(By.xpath("./following-sibling::div/a")).text();
-        String socksSizeInBasket = socksInBasket.shouldBe(visible).find(By.xpath("./following-sibling::div/ul/li[1]"))
-                .text().replaceAll("Размер:\\s*", "").trim();
-        String socksColorInBasket = socksInBasket.shouldBe(visible).find(By.xpath("./following-sibling::div/ul/li[2]"))
-                .text().replaceAll("Цвет:\\s*", "").trim();
-        double socksPriceInBasket = Double.parseDouble(socksInBasket.shouldBe(visible).find(By.xpath("./following-sibling::div[2]/div"))
-                .text().replaceAll("[^\\d,]", "").replace(",", "."));
-        int socksCountInBasket = Integer.parseInt(socksInBasket.shouldBe(visible)
-                .find(By.xpath("./following-sibling::div[4]//div[@class='quantity-group__number']")).text());
+//        SelenideElement socksInBasket = $(By.xpath(String.format("(//a[contains(@href, '#V%s')])[1]", socksArticleInCard)));
+        String socksNameInBasket = basketPage.getProductName(socksArticleInCard);
+        String socksSizeInBasket = basketPage.getProductSize(socksArticleInCard);
+        String socksColorInBasket = basketPage.getProductColor(socksArticleInCard);
+        double socksPriceInBasket = basketPage.getProductPrice(socksArticleInCard);
+        int socksCountInBasket = basketPage.getProductCount(socksArticleInCard);
+
         System.out.println("\nВ корзине:\n" + socksNameInBasket + "\n" + socksSizeInBasket + "\n" + socksColorInBasket +
                 "\n" + socksPriceInBasket + "\n" + socksCountInBasket);
 
@@ -223,15 +212,11 @@ public class GoogleSearchTest {
         System.out.println("Общая сумма товаров: " + expectedOrderPrice);
 
         // Получаем данные заказа из сайдбара (количество, общая сумма, доставка, сумма с доставкой)
-        double orderPriceInSidebar = Double.parseDouble($(By.xpath("//div[@class='basket-summary__price js-price']")).shouldBe(visible)
-                .text().replaceAll("[^\\d,]", "").replace(",", "."));
-        int sidebarCount = Integer.parseInt($(By.xpath("//span[@class='js-more']")).shouldBe(visible)
-                .text().split("\\s+")[0]);
-        $(By.xpath("//button[@class='basket-summary__btn-more']")).shouldBe(visible).click();
-        double productsPrice = Double.parseDouble($(By.xpath("//span[contains(text(), 'Товары')]/following-sibling::span"))
-                .text().replaceAll("[^\\d,]", "").replace(",", "."));
-        double deliveryPrice = Double.parseDouble($(By.xpath("//span[contains(text(), 'Доставка')]/following-sibling::span"))
-                .text().replaceAll("[^\\d,]", "").replace(",", "."));
+        double orderPriceInSidebar = basketPage.getOrderPriceInSidebar();
+        int sidebarCount = basketPage.getProductsCountInSidebar();
+        basketPage.showProductsAndDeliveryPrice();
+        double productsPrice = basketPage.getProductsPriceInSidebar();
+        double deliveryPrice = basketPage.getDeliveryPriceInSidebar();
 
         System.out.println("Количество товаров в сайдбаре: " + sidebarCount);
         System.out.println("Общая сумма заказа с доставкой: " + orderPriceInSidebar);
