@@ -96,8 +96,8 @@ public class BasketPageTest {
         // Выбираем категорию "Мужчинам"
         mainPage.showSubcategoriesInCatalog("Мужчинам");
         mainPage.goToSubcategoryInCatalog("Носки");
-        mainPage.goToProductCard("209398689");
-        productPage.selectProductColor("3 Pack (White)");
+        mainPage.goToProductCard("180428921");
+        productPage.selectProductColor("2 Pack (Medium Gray)");
         productPage.selectProductSize("L");
         productPage.putToBasket();
         productPage.setProductQuantity(4);

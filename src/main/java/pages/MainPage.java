@@ -1,5 +1,6 @@
 package pages;
 
+import com.codeborne.selenide.Selenide;
 import org.openqa.selenium.By;
 
 import java.time.Duration;
@@ -18,6 +19,7 @@ public class MainPage {
     private static final String subcategoryInSideBar = "//nav[@class='rubrics-catalog']//a[contains(text(), '%s')]";
 
     public void acceptCookies() {
+        Selenide.sleep(1000);
         if ($(cookiesButton).isDisplayed()) {
             $(cookiesButton).shouldBe(visible, Duration.ofSeconds(15)).click();
             $(cookiesButton).shouldNotBe(visible);
